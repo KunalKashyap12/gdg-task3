@@ -49,8 +49,7 @@ gdg-task3/
 │
 ├── data/                              # Datasets & data documentation
 │   ├── train.csv                      # AG News training dataset (120,000 samples)
-│   ├── test.csv                       # AG News test dataset (7,600 samples)
-│   └── README.md                      # Dataset documentation and schema
+│   └── test.csv                       # AG News test dataset (7,600 samples)
 │
 ├── models/                            # Serialized production models
 │   └── news_classifier_pipeline.pkl   # Serialized Calibrated LinearSVC pipeline (pickle)
