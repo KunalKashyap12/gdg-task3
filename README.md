@@ -62,22 +62,16 @@ gdg-task3/
 │   ├── style.css                      # Custom design tokens & glassmorphism styling
 │   └── app.js                         # Dynamic frontend controller & API client
 │
-├── src/                               # Modular NLP package
-│   ├── __init__.py                    # Package exports (NewsClassifier, predict_article, run_pipeline)
-│   ├── config.py                      # Category labels, file paths, regex, hyperparameters
-│   ├── preprocessing.py               # Basic & advanced text cleaning, contractions, lemmatization
-│   ├── features.py                    # Word/Char TF-IDF vectorization and text metadata extractors
-│   ├── models.py                      # Candidate classifiers, pipelines, and Platt calibration wrappers
-│   ├── evaluate.py                    # Metrics calculation, confusion matrix, error analysis
-│   ├── predict.py                     # Production NewsClassifier inference engine
-│   ├── pipeline.py                    # Full training, benchmarking, and evaluation orchestrator
-│   └── schemas.py                     # Pydantic request & response validation schemas
-│
-└── tests/                             # Automated test suite
-    ├── __init__.py
-    ├── test_preprocessing.py          # Preprocessing unit tests
-    ├── test_predict.py                # Inference engine & output schema unit tests
-    └── test_api.py                    # FastAPI endpoint & route integration tests
+└── src/                               # Modular NLP package
+    ├── __init__.py                    # Package exports (NewsClassifier, predict_article, run_pipeline)
+    ├── config.py                      # Category labels, file paths, regex, hyperparameters
+    ├── preprocessing.py               # Basic & advanced text cleaning, contractions, lemmatization
+    ├── features.py                    # Word/Char TF-IDF vectorization and text metadata extractors
+    ├── models.py                      # Candidate classifiers, pipelines, and Platt calibration wrappers
+    ├── evaluate.py                    # Metrics calculation, confusion matrix, error analysis
+    ├── predict.py                     # Production NewsClassifier inference engine
+    ├── pipeline.py                    # Full training, benchmarking, and evaluation orchestrator
+    └── schemas.py                     # Pydantic request & response validation schemas
 ```
 
 ---
@@ -119,16 +113,11 @@ To provide well-calibrated class posterior probabilities $P(y = k \mid x)$ for r
 pip install -r requirements.txt
 ```
 
-### 2. Run the Automated Tests
-```bash
-python -m unittest discover tests
-```
-
-### 3. Open the Jupyter Notebook
+### 2. Open the Jupyter Notebook
 Open [`notebooks/news_classification_pipeline.ipynb`](file:///c:/Users/HP/OneDrive/Desktop/gdg-task3/notebooks/news_classification_pipeline.ipynb) in VS Code or JupyterLab.
 It contains the step-by-step tutorial, data visualizations, model comparisons, and interactive prediction cells.
 
-### 4. Train and Benchmark Models via CLI
+### 3. Train and Benchmark Models via CLI
 ```bash
 # Standard full training on 120,000 articles
 python train.py
@@ -140,13 +129,13 @@ python train.py --sample_size 10000
 python train.py --advanced_clean
 ```
 
-### 5. Launch the Production FastAPI REST Service
+### 4. Launch the Production FastAPI REST Service
 ```bash
 uvicorn app:app --reload --host 0.0.0.0 --port 8000
 ```
 - Interactive Swagger UI: `http://localhost:8000/docs`
 - Health check: `http://localhost:8000/health`
-### 6. Deploy to Vercel
+### 5. Deploy to Vercel
 ```bash
 # Deploy to preview
 vercel
