@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Category Predictor</title>
+  <meta name="description" content="Simple, fast AI news article category classifier. Predicts World, Sports, Business, or Sci/Tech instantly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Ambient background glow -->
+  <div class="glow-bg"></div>
+
+  <div class="page-wrapper">
+    <main class="classifier-card">
+      <!-- Clean Minimal Header -->
+      <header class="card-header">
+        <h1 class="main-title">News Category Predictor</h1>
+        <p class="main-subtitle">Paste any news article or headline to predict which category it belongs to.</p>
+      </header>
+
+      <!-- Input Form -->
+      <form id="predictForm" class="predict-form">
+        <div class="textarea-container" id="dropArea">
+          <div class="textarea-header">
+            <span class="textarea-label">News Article</span>
+            <div class="textarea-actions">
+              <button type="button" class="btn-tool" id="clearTextBtn" title="Clear text">
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <textarea 
+            id="articleText" 
+            name="text" 
+            rows="6" 
+            placeholder="Paste your news article or headline here..." 
+            required
+            autocomplete="off"
+            spellcheck="false"
+          ></textarea>
+
+          <div class="textarea-footer">
+            <span id="charCounter" class="char-count">0 characters</span>
+          </div>
+        </div>
+
+        <!-- Quick Sample Badges -->
+        <div class="examples-bar">
+          <span class="examples-title">Try an example:</span>
+          <button type="button" class="example-pill" data-type="world">🌍 World</button>
+          <button type="button" class="example-pill" data-type="sports">⚽ Sports</button>
+          <button type="button" class="example-pill" data-type="business">💼 Business</button>
+          <button type="button" class="example-pill" data-type="scitech">🔬 Sci/Tech</button>
+        </div>
+
+        <!-- Predict Action Button -->
+        <button type="submit" class="btn-predict" id="submitBtn">
+          <span class="btn-spinner" id="spinner" style="display: none;"></span>
+          <span id="btnLabel">Predict Category</span>
+        </button>
+      </form>
+
+      <!-- Prediction Result Section (Only Category) -->
+      <section class="result-section" id="resultCard" style="display: none;">
+        <div class="result-divider"></div>
+
+        <div class="category-banner" id="categoryBanner">
+          <span class="banner-icon" id="bannerIcon">🌍</span>
+          <div class="banner-info">
+            <span class="banner-tag">Predicted Category</span>
+            <h2 class="banner-title" id="bannerTitle">World News</h2>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Powered by Calibrated Linear Support Vector Machine • Ready for Vercel</p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
