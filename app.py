@@ -10,7 +10,7 @@ Provides:
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -94,6 +94,9 @@ def execute_prediction(title: Optional[str] = None, description: Optional[str] =
 
 @app.get("/health", response_model=HealthResponse, summary="Health Check", tags=["System"])
 @app.get("/api/health", response_model=HealthResponse, include_in_schema=False)
+@app.get("/api/index.py", response_model=HealthResponse, include_in_schema=False)
+@app.get("/api", response_model=HealthResponse, include_in_schema=False)
+@app.get("/api/", response_model=HealthResponse, include_in_schema=False)
 def health_check():
     """
     Validates model pipeline readiness and API health.
@@ -116,6 +119,9 @@ def health_check():
     tags=["Inference"]
 )
 @app.post("/api/predict", response_model=SingleArticleResponse, include_in_schema=False)
+@app.post("/api/index.py", response_model=SingleArticleResponse, include_in_schema=False)
+@app.post("/api", response_model=SingleArticleResponse, include_in_schema=False)
+@app.post("/api/", response_model=SingleArticleResponse, include_in_schema=False)
 def predict_single(request: SingleArticleRequest):
     """
     Classifies a news article into one of 4 categories and returns confidence probabilities.
@@ -165,4 +171,30 @@ if PUBLIC_DIR.exists():
     @app.get("/app.js", include_in_schema=False)
     def serve_app_js():
         return FileResponse(str(PUBLIC_DIR / "app.js"))
+
+
+# =====================================================================
+# Serverless Catch-All Fallback Route
+# =====================================================================
+
+@app.api_route("/{rest_of_path:path}", methods=["GET", "POST", "OPTIONS"], include_in_schema=False)
+async def catch_all_route(rest_of_path: str, request: Request):
+    """
+    Catch-all router ensuring any rewritten serverless path is serviced.
+    """
+    if request.method == "POST":
+        try:
+            body = await request.json()
+            title = body.get("title")
+            description = body.get("description", "")
+            text = body.get("text")
+            return execute_prediction(title=title, description=description, text=text)
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid request payload: {str(e)}")
+    elif request.method == "GET":
+        if "health" in rest_of_path or rest_of_path.strip("/") in ("", "api"):
+            return health_check()
+    raise HTTPException(status_code=404, detail=f"Path not found: /{rest_of_path}")
 

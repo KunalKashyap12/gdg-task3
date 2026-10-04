@@ -119,26 +119,28 @@ function setupFormSubmit() {
       const payload = { text };
       let res = null;
 
-      // Try /api/predict (Vercel) first, fallback to /predict
-      try {
-        res = await fetch("/api/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok && res.status === 404) {
-          res = await fetch("/predict", {
+      // Robust serverless endpoint fallback
+      const candidateEndpoints = ["/api/predict", "/predict", "/api", "/api/index.py"];
+      let lastStatus = 0;
+
+      for (const endpoint of candidateEndpoints) {
+        try {
+          res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
+          if (res.ok) {
+            break;
+          }
+          lastStatus = res.status;
+          if (res.status === 404) {
+            continue;
+          }
+          break;
+        } catch (fetchErr) {
+          // Continue to next endpoint on network issue
         }
-      } catch (err) {
-        res = await fetch("/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
       }
 
       if (!res.ok) {
