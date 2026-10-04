@@ -5,7 +5,10 @@ A modular NLP pipeline for classifying news articles into World, Sports, Busines
 
 from src.predict import NewsClassifier, predict_article
 from src.preprocessing import TextPreprocessor
-from src.pipeline import run_pipeline
+try:
+    from src.pipeline import run_pipeline
+except ImportError:
+    run_pipeline = None
 from src.config import LABEL_MAP, CLASS_NAMES
 
 __version__ = "1.0.0"

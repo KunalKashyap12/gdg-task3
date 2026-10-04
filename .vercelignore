@@ -6,9 +6,8 @@ data/
 notebooks/
 tests/
 
-# Training scripts & pipeline
+# Training scripts
 train.py
-src/pipeline.py
 
 # Bytecode & development caches
 __pycache__/

@@ -15,8 +15,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
-from src import NewsClassifier, __version__
+from src.predict import NewsClassifier
 from src.config import CLASS_NAMES
+from src import __version__
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent
@@ -61,9 +62,10 @@ from src.schemas import (
 
 def execute_prediction(title: Optional[str] = None, description: Optional[str] = "", text: Optional[str] = None) -> Dict:
     if not classifier.pipeline:
+        detail_msg = classifier.load_error or "Model is not loaded. Ensure models/news_classifier_pipeline.pkl exists."
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Model is not loaded. Ensure models/news_classifier_pipeline.pkl exists."
+            detail=detail_msg
         )
 
     # Support single text block input
@@ -102,6 +104,7 @@ def health_check():
         "version": __version__,
         "model_loaded": is_loaded,
         "categories": CLASS_NAMES,
+        "error": classifier.load_error if not is_loaded else None,
     }
 
 

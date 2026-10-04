@@ -47,3 +47,4 @@ class HealthResponse(BaseModel):
     version: str
     model_loaded: bool
     categories: List[str]
+    error: Optional[str] = None

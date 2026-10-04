@@ -20,20 +20,46 @@ class NewsClassifier:
 
     def __init__(self, model_path: Optional[Union[str, Path]] = None):
         self.model_path = Path(model_path) if model_path else MODEL_PATH
-        self.preprocessor = TextPreprocessor(use_lemmatization=True, remove_stopwords=True)
+        # Champion pipeline was trained on clean_basic; avoid heavy NLTK downloads on serverless cold starts
+        self.preprocessor = TextPreprocessor(use_lemmatization=False, remove_stopwords=False)
         self.pipeline = None
+        self.load_error: Optional[str] = None
 
-        if self.model_path.exists():
-            self.load_model(self.model_path)
+        # Search across potential deployment locations
+        candidate_paths = [
+            self.model_path,
+            Path(__file__).resolve().parent.parent / "models" / "news_classifier_pipeline.pkl",
+            Path.cwd() / "models" / "news_classifier_pipeline.pkl",
+            Path("/var/task/models/news_classifier_pipeline.pkl"),
+        ]
+
+        found_path = None
+        for p in candidate_paths:
+            if p and p.is_file():
+                found_path = p
+                break
+
+        if found_path:
+            self.load_model(found_path)
+        else:
+            searched = [str(p) for p in candidate_paths]
+            self.load_error = f"Model artifact not found. Checked: {searched}"
+            print(f"[Warning] {self.load_error}")
 
     def load_model(self, model_path: Union[str, Path]):
         """
-        Loads the trained model pipeline artifact from disk using pickle.
+        Loads the trained model pipeline artifact from disk using pickle safely.
         """
         self.model_path = Path(model_path)
-        with open(self.model_path, "rb") as f:
-            self.pipeline = pickle.load(f)
-        print(f"Loaded news classification pipeline from {self.model_path}")
+        try:
+            with open(self.model_path, "rb") as f:
+                self.pipeline = pickle.load(f)
+            self.load_error = None
+            print(f"Loaded news classification pipeline from {self.model_path}")
+        except Exception as e:
+            self.pipeline = None
+            self.load_error = f"Failed to unpickle model from {self.model_path}: {str(e)}"
+            print(f"[Error] {self.load_error}")
 
     def predict(self, title: str, description: str = "") -> Dict[str, Any]:
         """
@@ -43,11 +69,11 @@ class NewsClassifier:
             and probabilities for all 4 categories.
         """
         if self.pipeline is None:
-            raise RuntimeError("Model pipeline is not loaded. Train a model or provide valid model_path.")
+            raise RuntimeError(self.load_error or "Model pipeline is not loaded.")
 
         # Combine and clean text
         raw_combined = self.preprocessor.combine_title_description(title, description)
-        cleaned_text = self.preprocessor.clean_advanced(raw_combined)
+        cleaned_text = self.preprocessor.clean_basic(raw_combined)
 
         # Predict
         pred_label = self.pipeline.predict([cleaned_text])[0]
